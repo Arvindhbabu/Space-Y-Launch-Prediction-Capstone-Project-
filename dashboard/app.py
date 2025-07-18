@@ -76,4 +76,6 @@ st_folium(m, width=700)
 st.subheader("📈 Orbit vs Success Rate")
 orbit_plot = df.groupby('Orbit')['Landing_Success'].mean().reset_index()
 fig = px.bar(orbit_plot, x='Orbit', y='Landing_Success', title='🚀 Orbit vs Landing Success Rate')
-st.plotly_chart(fig)
+st.plotly_chart(fig) 
+
+#streamlit run app.py
