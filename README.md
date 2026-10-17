@@ -57,8 +57,8 @@ flowchart TD
 **Windows PowerShell**
 
 ~~~powershell
-git clone https://github.com/Arvindhbabu/SpaceY-Intelligence.git
-cd SpaceY-Intelligence
+git clone https://github.com/Arvindhbabu/spacey-intelligence.git
+cd spacey-intelligence
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -68,8 +68,8 @@ python -m pip install -r requirements.txt
 **macOS / Linux**
 
 ~~~bash
-git clone https://github.com/Arvindhbabu/SpaceY-Intelligence.git
-cd SpaceY-Intelligence
+git clone https://github.com/Arvindhbabu/spacey-intelligence.git
+cd spacey-intelligence
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
