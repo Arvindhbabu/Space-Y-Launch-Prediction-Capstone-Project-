@@ -1,109 +1,109 @@
-# 💰 SpaceY Intelligence — Commercial Launch Economics & Decision Assumptions
+# Mission Economics — Assumptions and Equations
 
-## 1. Commercial Strategic Context
+## Purpose and scope
 
-SpaceY operates as an agile, private aerospace enterprise competing for commercial satellite, civil government, and orbital constellation deployment contracts. In modern launch markets, competitor pricing is dominated by SpaceX's reusable Falcon 9 architecture, which advertises standard list prices of approximately **$67.0M** for commercial payloads while maintaining high gross margins due to first-stage booster recovery. Legacy expendable providers (e.g., ULA Atlas V / Vulcan, Arianespace Ariane 6) price missions between **$90M and $150M+**, suffering from single-use hardware write-offs.
+The Mission Economics module demonstrates how uncertain recovery outcomes can be connected to a simplified expected-cost calculation. It is an educational simulator, not a financial forecast, pricing guide, or aerospace operations recommendation.
 
-To price competitively while guaranteeing positive operating margins, SpaceY must evaluate the **net risk-adjusted cost** of each flight profile. If an orbital mission (such as heavy payload to GTO or high-energy interplanetary trajectories) consumes all booster propellant margins, attempting booster recovery introduces maritime drone ship deployment costs, risk of booster structural failure, and recovery crew mobilization without tangible salvage benefit.
+**Every default monetary input is an illustrative assumption selected for the application.** The defaults are not verified SpaceX costs, current launch prices, supplier quotations, insurance terms, or audited company financials. Change the inputs to explore how assumptions affect results.
 
-The SpaceY Mission Economics Engine models these trade-offs rigorously, converting probabilistic model outputs ($P_{\text{recovery}}$) into actionable financial guidance.
+## Configurable inputs
 
----
+All monetary values are in millions of dollars (USD), unless stated otherwise.
 
-## 2. Core Economic Model & Mathematical Formulation
+| Input | Default | Meaning in this simulation |
+|---|---:|---|
+| Contract revenue | 67.0 | Assumed revenue for one hypothetical mission |
+| Baseline mission cost | 55.0 | Assumed base cost before recovery-specific adjustments |
+| Recovery operations cost | 2.5 | Assumed incremental cost for a recovery attempt |
+| Booster asset value | 25.0 | Assumed value assigned to a successfully recovered booster |
+| Refurbishment cost | 5.0 | Assumed inspection/refurbishment cost |
+| Failure contingency | 3.0 | Assumed additional cost in a failed-recovery scenario |
+| Risk reserve | 5% | Assumed contingency multiplier applied to modeled costs |
 
-### 2.1 Baseline Parameters
+These inputs are user-adjustable in the application/API. They should be replaced with independently sourced values before the calculator is used for any real business analysis.
 
-| Parameter | Symbol | Default Value | Aerospace / Industry Justification |
-| :--- | :---: | :---: | :--- |
-| **Contract Revenue** | $R$ | **$67.0M** | Competitive market launch fee charged to commercial satellite customer. |
-| **Baseline Mission Cost** | $C_{\text{base}}$ | **$55.0M** | Base manufacturing, propellants, range fees, integration, and upper stage cost. |
-| **Recovery Ops Cost** | $C_{\text{ops}}$ | **$2.5M** | Autonomous Spaceport Drone Ship (ASDS) tugboat charter, marine crew, radar, recovery tracking. |
-| **Booster Asset Value** | $V_{\text{booster}}$ | **$25.0M** | Estimated asset valuation of an intact, reusable first-stage booster (~45-50% of vehicle capital cost). |
-| **Refurbishment Cost** | $C_{\text{refurb}}$ | **$5.0M** | Ultrasonic non-destructive inspection, heat-shield restoration, turbopump overhaul, and requalification. |
-| **Failure Contingency** | $C_{\text{fail}}$ | **$3.0M** | Marine search, debris tracking, salvage operations, anomaly investigation, and insurance deductible. |
-| **Risk Reserve Multiplier** | $\mu_{\text{res}}$ | **5.0%** ($1.05$) | Operational contingency buffer across all expenditure lines. |
+## Equations implemented by the simulator
 
----
+Let:
+- (R) be assumed contract revenue.
+- (C_b) be baseline mission cost.
+- (C_o) be recovery operations cost.
+- (V_b) be assumed recovered-booster asset value.
+- (C_r) be refurbishment cost.
+- (C_f) be failure contingency.
+- (mu) be the risk-reserve percentage expressed as a decimal.
+- (p) be the recovery probability supplied to the calculator, clipped to the interval ([0,1]).
 
-### 2.2 Cost Functions by Flight Outcome
+The risk-reserve multiplier is:
 
-Let the net hardware salvage benefit be defined as:
-$$\Delta V_{\text{net}} = V_{\text{booster}} - C_{\text{refurb}}$$
-Under default parameters:
-$$\Delta V_{\text{net}} = \$25.0\text{M} - \$5.0\text{M} = \$20.0\text{M}$$
+[
+m = 1 + mu
+]
 
-#### Scenario A: Successful Booster Recovery
-When the first stage safely lands on a drone ship or landing pad:
-$$C_{\text{success}} = \left( C_{\text{base}} + C_{\text{ops}} - \Delta V_{\text{net}} \right) \times (1 + \mu_{\text{res}})$$
-$$C_{\text{success}} = (\$55.0\text{M} + \$2.5\text{M} - \$20.0\text{M}) \times 1.05 = \$37.5\text{M} \times 1.05 = \$39.375\text{M}$$
+Net assumed hardware benefit:
 
-#### Scenario B: Recovery Attempt Failed (Ocean Impact / Anomaly)
-When recovery is attempted but the booster fails entry burn, loses aerodynamic control, or suffers hard landing:
-$$C_{\text{failure}} = \left( C_{\text{base}} + C_{\text{ops}} + C_{\text{fail}} \right) \times (1 + \mu_{\text{res}})$$
-$$C_{\text{failure}} = (\$55.0\text{M} + \$2.5\text{M} + \$3.0\text{M}) \times 1.05 = \$60.5\text{M} \times 1.05 = \$63.525\text{M}$$
+[
+V_{net} = V_b - C_r
+]
 
-#### Scenario C: Deliberate Expendable Mission Baseline (No Recovery Attempted)
-When no landing hardware (legs, grid fins) is flown and no marine assets are deployed:
-$$C_{\text{expendable}} = C_{\text{base}} \times (1 + \mu_{\text{res}}) = \$55.0\text{M} \times 1.05 = \$57.750\text{M}$$
+Modeled cost in the success scenario:
 
----
+[
+C_s = (C_b + C_o - V_{net})m
+]
 
-### 2.3 Expected Value & Margin Formulation
+Modeled cost in the failure scenario:
 
-Given a machine learning predicted landing probability $P \in [0, 1]$:
-$$\mathbb{E}[C] = P \cdot C_{\text{success}} + (1 - P) \cdot C_{\text{failure}}$$
-$$\mathbb{E}[\text{Margin}] = R - \mathbb{E}[C]$$
-$$\mathbb{E}[\text{Margin \%}] = \frac{\mathbb{E}[\text{Margin}]}{R} \times 100\%$$
-$$\text{Expected Savings vs Expendable} = C_{\text{expendable}} - \mathbb{E}[C]$$
+[
+C_f^{*} = (C_b + C_o + C_f)m
+]
 
----
+Modeled expendable baseline:
 
-## 3. Derivation of the Break-Even Recovery Probability ($P^*$)
+[
+C_e = C_bm
+]
 
-The commercial break-even point occurs when attempting recovery yields the exact same expected cost as flying an expendable mission:
-$$\mathbb{E}[C] = C_{\text{expendable}}$$
-$$P^* \cdot C_{\text{success}} + (1 - P^*) \cdot C_{\text{failure}} = C_{\text{expendable}}$$
-$$C_{\text{failure}} - P^* \left( C_{\text{failure}} - C_{\text{success}} \right) = C_{\text{expendable}}$$
-$$P^* = \frac{C_{\text{failure}} - C_{\text{expendable}}}{C_{\text{failure}} - C_{\text{success}}}$$
+Expected modeled cost:
 
-Substituting the algebraic expressions:
-$$C_{\text{failure}} - C_{\text{expendable}} = \left( C_{\text{ops}} + C_{\text{fail}} \right) \times (1 + \mu_{\text{res}})$$
-$$C_{\text{failure}} - C_{\text{success}} = \left( \Delta V_{\text{net}} + C_{\text{fail}} \right) \times (1 + \mu_{\text{res}})$$
+[
+E[C] = pC_s + (1-p)C_f^{*}
+]
 
-Notice the contingency buffer $(1 + \mu_{\text{res}})$ cancels out:
-$$P^* = \frac{C_{\text{ops}} + C_{\text{fail}}}{(V_{\text{booster}} - C_{\text{refurb}}) + C_{\text{fail}}}$$
+Expected modeled margin and margin percentage:
 
-Evaluating with default baseline values:
-$$P^* = \frac{\$2.5\text{M} + \$3.0\text{M}}{(\$25.0\text{M} - \$5.0\text{M}) + \$3.0\text{M}} = \frac{\$5.5\text{M}}{\$20.0\text{M} + \$3.0\text{M}} = \frac{\$5.5\text{M}}{\$23.0\text{M}} \approx 0.2391 \quad (23.9\%)$$
+[
+E[M] = R - E[C]
+]
 
-### Strategic Implication:
-- If the model predicts **$P > 23.9\%$**, the commercial expected value of attempting booster recovery is strictly positive.
-- If $P < 23.9\%$, the incremental expenses of recovery vessels and failure investigation outweigh the expected salvage value. Flight planning should strip landing legs and burn propellant for maximum payload insertion performance.
+[
+E[M%] = rac{E[M]}{R}	imes100%
+]
 
----
+Expected savings relative to the simulated expendable baseline:
 
-## 4. Sensitivity Scenarios
+[
+S = C_e - E[C]
+]
 
-| Landing Confidence $P$ | Expected Cost | Expected Margin ($) | Margin (%) | Savings vs Expendable | Flight Recommendation |
-| :---: | :---: | :---: | :---: | :---: | :--- |
-| **0.0%** (Certain Loss) | $63.53M | $3.48M | 5.19% | -$5.78M | **EXPENDABLE** |
-| **23.9%** ($P^*$ Break-even) | $57.75M | $9.25M | 13.81% | $0.00M | **NEUTRAL THRESHOLD** |
-| **50.0%** (Toss-up) | $51.45M | $15.55M | 23.21% | +$6.30M | **RECOVERY FAVORABLE** |
-| **75.0%** (High Confidence) | $45.41M | $21.59M | 32.22% | +$12.34M | **RECOVERY HIGHLY ADVANTAGEOUS** |
-| **95.0%** (Mature Block 5) | $40.58M | $26.42M | 39.43% | +$17.17M | **RECOVERY STANDARD OPERATING PROFILE** |
+In this implementation, the reported break-even probability is derived by equating expected recovery cost to the modeled expendable baseline. With positive net recovery benefit:
 
----
+[
+p^* =
+rac{C_o + C_f}{(V_b-C_r)+C_f}
+]
 
-## 5. Bid Evaluation Policy
+The code clips the computed threshold to ([0,1]). If the net-benefit denominator is non-positive, it sets the threshold to 1.0. See `src/spacey/economics/calculator.py` for the precise implementation.
 
-The SpaceY Intelligence platform codifies these calculations into executive recommendations:
-1. **Aggressive Commercial Bidding ($P \ge 70\%$)**:
-   - Offer standard commercial discount ($62M - $67M) to win competitive commercial tenders.
-   - Retain healthy gross margins exceeding 30%.
-2. **Conservative Strategic Bidding ($25\% \le P < 70\%$)**:
-   - Price at $67M - $75M.
-   - Allocate marine drone ship assets while hedging with third-party launch risk insurance.
-3. **High-Energy / Heavy Lift Missions ($P < 25\%$)**:
-   - Offer dedicated expendable flight profile priced between $80M - $95M.
-   - Still undercuts legacy expendable competitors ($110M - $150M) while protecting SpaceY from recovery loss penalties.
+## Interpretation guardrails
+
+- The formula simplifies costs into a small number of categories; actual launch economics are much more complex.
+- It does not include financing, vehicle-development amortization, payload-specific performance penalties, schedule risk, taxes, detailed insurance, range availability, contract terms, or many other commercial factors.
+- A positive expected savings value means only that the supplied assumptions favor one modeled scenario over another.
+- A threshold is mathematically conditional on the chosen inputs. It is not a universal recovery success threshold.
+- The recovery probability is produced by a small-sample educational classifier and should not be treated as a validated operational probability.
+- Outputs must not be used as real-world bid, procurement, launch, or recovery instructions.
+
+## Implementation and tests
+
+The calculations are implemented in `src/spacey/economics/calculator.py`. Regression tests for standard inputs, break-even behavior, probability clipping, and sensitivity calculations are in `tests/test_economics.py`.
