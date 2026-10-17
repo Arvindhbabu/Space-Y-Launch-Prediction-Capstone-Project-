@@ -1,7 +1,7 @@
 # SpaceY Intelligence
 ### Launch Analytics · Booster-Recovery Prediction · Mission Economics
 
-[![CI](https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-/actions/workflows/ci.yml/badge.svg)](https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-/actions/workflows/ci.yml)
+[![CI](https://github.com/Arvindhbabu/spacey-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/Arvindhbabu/spacey-intelligence/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-REST%20API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -147,7 +147,7 @@ python -m pytest tests/ -v
 
 Use the same activated virtual environment to install dependencies, train/load the model, launch Streamlit, run the API, and execute tests. The serialized scikit-learn artifact should be loaded only in a compatible environment. If provenance and pinned versions disagree, correct the environment or retrain the model rather than patching serialized estimator attributes.
 
-The live [GitHub Actions page](https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-/actions) is the source of truth for current automation status.
+The live [GitHub Actions page](https://github.com/Arvindhbabu/spacey-intelligence/actions) is the source of truth for current automation status.
 
 ## Model evaluation and limitations
 
