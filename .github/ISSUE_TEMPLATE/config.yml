@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Contribution guidelines
-    url: https://github.com/Arvindhbabu/SpaceY-Intelligence/blob/master/CONTRIBUTING.md
+    url: https://github.com/Arvindhbabu/spacey-intelligence/blob/master/CONTRIBUTING.md
     about: Read the contribution and testing guidance before proposing substantial changes.
   - name: Security policy
-    url: https://github.com/Arvindhbabu/SpaceY-Intelligence/blob/master/SECURITY.md
+    url: https://github.com/Arvindhbabu/spacey-intelligence/blob/master/SECURITY.md
     about: Report security concerns privately; do not publish sensitive details in issues.
