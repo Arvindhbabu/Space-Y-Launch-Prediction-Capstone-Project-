@@ -35,10 +35,13 @@ def check_model_compatibility(
     models should always be executed in a matching, compatible virtual environment.
     """
     if not metadata:
-        return {
-            "is_compatible": True,
-            "warning": "No metadata provided for compatibility check.",
+        report = {
+            "is_compatible": False,
+            "warning": "Model provenance metadata is missing; compatibility cannot be established.",
         }
+        if raise_on_incompatible:
+            raise RuntimeError(report["warning"])
+        return report
 
     package_versions = metadata.get("package_versions", {})
     train_sklearn = str(package_versions.get("scikit-learn") or metadata.get("sklearn_version", "unknown"))
@@ -47,16 +50,21 @@ def check_model_compatibility(
     current_sklearn = str(sklearn.__version__)
     current_python = str(sys.version.split()[0])
 
-    def get_major_minor(v_str: str) -> str:
+    def get_major_minor(v_str: str) -> Optional[str]:
         parts = v_str.strip().split(".")
-        if len(parts) >= 2:
-            return f"{parts[0]}.{parts[1]}"
-        return v_str
+        if len(parts) < 2 or not parts[0].isdigit() or not parts[1].isdigit():
+            return None
+        return f"{parts[0]}.{parts[1]}"
 
     train_sk_mm = get_major_minor(train_sklearn)
     curr_sk_mm = get_major_minor(current_sklearn)
 
-    is_compatible = (train_sk_mm == curr_sk_mm)
+    # Unknown provenance must not be treated as a verified-compatible artifact.
+    is_compatible = (
+        train_sk_mm is not None
+        and curr_sk_mm is not None
+        and train_sk_mm == curr_sk_mm
+    )
 
     report = {
         "is_compatible": is_compatible,
@@ -137,9 +145,14 @@ def load_registered_model(registry_dir: Path = REGISTRY_DIR) -> Tuple[Optional[A
     try:
         with open(meta_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
-        check_model_compatibility(metadata, raise_on_incompatible=False)
+        # Fail closed: never deserialize a known-incompatible or unverified artifact.
+        check_model_compatibility(metadata, raise_on_incompatible=True)
     except Exception as meta_exc:
-        logger.warning("Could not read registry metadata for compatibility check: %s", meta_exc)
+        logger.error(
+            "Model artifact was not loaded because compatibility validation failed: %s",
+            meta_exc,
+        )
+        return None, metadata
 
     try:
         pipeline = joblib.load(model_path)
