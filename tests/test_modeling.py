@@ -75,3 +75,27 @@ def test_registered_model_inference():
 
     assert 0.0 <= proba <= 1.0
     assert pred in [0, 1]
+
+
+
+def test_model_compatibility_rejects_mismatched_sklearn():
+    metadata = {
+        "package_versions": {
+            "scikit-learn": "0.0",
+            "python": "3.12.0",
+        }
+    }
+    report = check_model_compatibility(metadata)
+    assert report["is_compatible"] is False
+    assert "warning" in report
+
+    with pytest.raises(RuntimeError, match="Model Compatibility Mismatch"):
+        check_model_compatibility(metadata, raise_on_incompatible=True)
+
+
+def test_model_compatibility_rejects_missing_provenance():
+    report = check_model_compatibility({})
+    assert report["is_compatible"] is False
+
+    with pytest.raises(RuntimeError, match="provenance metadata is missing"):
+        check_model_compatibility({}, raise_on_incompatible=True)
