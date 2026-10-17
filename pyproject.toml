@@ -1,33 +1,36 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "spacey-intelligence"
-version = "1.0.0"
-description = "SpaceY Intelligence: Mission Analytics & First-Stage Recovery Decision-Support Platform"
-authors = [{ name = "SpaceY Engineering Team" }]
+version = "1.0.1"
+description = "Educational launch analytics, booster recovery prediction, and mission economics"
+authors = [{ name = "Arvindh Babu V" }]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "streamlit>=1.65.0",
-    "pandas>=3.0.0",
-    "numpy>=2.5.0",
-    "scikit-learn>=1.9.0",
-    "scipy>=1.18.0",
-    "joblib>=1.6.0",
-    "plotly>=7.1.0",
-    "folium>=0.20.0",
-    "streamlit-folium>=0.27.0",
-    "pydantic>=2.14.0",
-    "fastapi>=0.143.0",
-    "uvicorn>=0.54.0",
-    "requests>=2.34.0",
-    "httpx>=0.28.0",
-    "pytest>=9.1.0",
+    "streamlit==1.65.0",
+    "pandas==3.0.6",
+    "numpy==2.5.4",
+    "scikit-learn==1.9.1",
+    "scipy==1.18.1",
+    "joblib==1.6.0",
+    "plotly==7.1.0",
+    "folium==0.20.0",
+    "streamlit-folium==0.27.4",
+    "pydantic==2.14.1",
+    "fastapi==0.143.0",
+    "uvicorn==0.54.0",
+    "requests==2.34.2",
+    "httpx==0.28.1",
+    "pytest==9.1.1",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["src"]

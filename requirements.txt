@@ -1,4 +1,5 @@
-# SpaceY Intelligence Dependencies (Pinned for Reproducibility & Model Compatibility)
+# Runtime and test dependencies for the project's serialized model artifacts.
+# Install and run this file with the same Python interpreter.
 streamlit==1.65.0
 pandas==3.0.6
 numpy==2.5.4
