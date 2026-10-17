@@ -84,8 +84,9 @@ py -3.12 -m venv .venv
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
-# Confirm interpreter and key versions before loading the model
+# Confirm interpreter, dependency pins, and model-artifact provenance before loading the model
 python -c "import sys, sklearn; print(sys.executable); print('scikit-learn', sklearn.__version__)"
+python scripts/diagnose_environment.py
 
 # Optional: rebuild the data artifacts and train a fresh registered model
 python scripts/prepare_data.py
@@ -104,6 +105,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+python scripts/diagnose_environment.py
 python scripts/prepare_data.py
 python scripts/train_model.py
 python -m streamlit run app.py
@@ -153,7 +155,7 @@ CI is configured in `.github/workflows/ci.yml`. Check the live workflow badge ab
 - Thresholds, confidence labels, and costs are analytical choices that need independent validation.
 - Verify data dates, target definitions, duplicate records, class balance, and any overlap between benchmark and operational datasets before drawing conclusions.
 
-See [Model Card](docs/MODEL_CARD.md), [Methodology](docs/METHODOLOGY.md), [Limitations](docs/LIMITATIONS.md), [Economics Assumptions](docs/ECONOMICS_ASSUMPTIONS.md), and [Verification Report](docs/VERIFICATION_REPORT.md).
+See [Model Card](docs/MODEL_CARD.md), [Methodology](docs/METHODOLOGY.md), [Limitations](docs/LIMITATIONS.md), [Economics Assumptions](docs/ECONOMICS_ASSUMPTIONS.md), [Verification Report](docs/VERIFICATION_REPORT.md), and [Local Environment Troubleshooting](docs/LOCAL_ENVIRONMENT_TROUBLESHOOTING.md).
 
 ## Data and attribution
 
