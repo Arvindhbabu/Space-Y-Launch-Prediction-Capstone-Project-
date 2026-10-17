@@ -1,24 +1,40 @@
-# Byte-compiled / optimized / DLL files
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Caches
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Environments
+# Virtual environments
 .env
-.venv
+.env.*
+!.env.example
+.venv/
 env/
 venv/
 ENV/
 
-# Scratch & temporary artifacts
-scratch/
-*.log
+# Test, coverage, and static-analysis caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
 
-# Operating System
+# Build artifacts and package outputs
+build/
+dist/
+*.egg-info/
+
+# Application and database runtime artifacts
+*.log
+*.sqlite-wal
+*.sqlite-shm
+*.db-journal
+.streamlit/secrets.toml
+
+# Editor and operating system files
+.vscode/*
+!.vscode/extensions.json
 .DS_Store
 Thumbs.db
