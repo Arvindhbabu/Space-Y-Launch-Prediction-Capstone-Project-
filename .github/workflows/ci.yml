@@ -31,6 +31,8 @@ jobs:
           python -c "import sys, sklearn, pandas, numpy; print(sys.executable); print('sklearn', sklearn.__version__); print('pandas', pandas.__version__); print('numpy', numpy.__version__)"
       - name: Validate dependency graph
         run: python -m pip check
+      - name: Diagnose runtime and registered model compatibility
+        run: python scripts/diagnose_environment.py
       - name: Compile Python sources
         run: python -m compileall -q app.py pages src scripts tests
       - name: Run tests
