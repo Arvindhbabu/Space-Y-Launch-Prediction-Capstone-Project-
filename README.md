@@ -1,166 +1,192 @@
 # SpaceY Intelligence
-## Launch Analytics, Booster-Recovery Prediction & Mission Economics
+### Launch Analytics · Booster-Recovery Prediction · Mission Economics
 
-[![CI](https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-/actions/workflows/ci.yml/badge.svg)](https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-/actions/workflows/ci.yml)
+[![CI](https://github.com/Arvindhbabu/spacey-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/Arvindhbabu/spacey-intelligence/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-REST%20API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-analytics%20warehouse-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 
-SpaceY Intelligence extends the IBM/Coursera SpaceX Falcon 9 capstone into a modular analytics demonstration for exploring historical launch outcomes, estimating booster-recovery likelihoods, and examining illustrative mission-economics scenarios.
+SpaceY Intelligence is an end-to-end **launch analytics and machine-learning project** built around the IBM/Coursera Falcon 9 capstone workflow. It combines historical launch exploration, an interactive dashboard, a booster-recovery classification demo, and a configurable mission-economics simulator.
 
-> **Important:** This is an educational decision-support project, not a certified aerospace engineering, flight-safety, or commercial-pricing system. Model outputs reflect a small historical dataset and must not be used to authorize real missions. Economic inputs are illustrative assumptions, not verified SpaceX or industry costs.
+> [!IMPORTANT]
+> This is an **educational and analytical demonstration**, not certified aerospace software. Model outputs are based on a small historical benchmark and must not be used to authorize or plan real missions. Economic values are illustrative assumptions, not verified industry costs or SpaceX pricing.
 
-## What it includes
+## Capabilities
 
-- **Executive overview:** launch-history indicators and summary trends.
-- **Launch explorer:** filterable launch records and analytical queries backed by SQLite.
-- **Geospatial intelligence:** interactive launch-site mapping.
-- **Predictive lab:** scenario inputs for payload, orbit, booster block, launch site, reuse, grid fins, and landing legs.
-- **Model intelligence:** candidate-model comparison, holdout metrics, and feature-importance analysis.
-- **Mission economics:** expected-cost and break-even scenario calculations using configurable assumptions.
-- **Data quality:** schema checks and input/data diagnostics.
-- **Technical documentation:** in-app notes and project methodology.
-- **FastAPI service:** health, metadata, single prediction, batch prediction, and economics endpoints.
+| Area | What it provides |
+|---|---|
+| Executive overview | Historical launch indicators and high-level trends |
+| Launch explorer | Filter launch records and explore outcome patterns |
+| Geospatial intelligence | Map supported launch sites and compare their history |
+| Predictive lab | Evaluate and compare hypothetical mission profiles |
+| Model intelligence | Compare candidate classifiers and inspect evaluation metrics and feature attribution |
+| Mission economics | Estimate expected costs, margins, and break-even recovery probability from editable assumptions |
+| Data quality | Inspect schema, validation results, and processed launch records |
+| FastAPI service | Health, model metadata, single/batch prediction, and economics endpoints |
+
+## Technology stack
+
+- **Language and data:** Python 3.12, pandas, NumPy, SQLite
+- **Machine learning:** scikit-learn, preprocessing pipelines, model comparison, evaluation, permutation importance
+- **Application:** Streamlit, Plotly, Folium
+- **API:** FastAPI, Pydantic, Uvicorn
+- **Quality and delivery:** pytest, pinned dependencies, GitHub Actions, Docker, Docker Compose
 
 ## Architecture
 
-```text
-Public launch datasets
-       |
-       v
-Validation and preprocessing -----> SQLite analytics warehouse
-       |
-       v
-Benchmark model training
-       |
-       v
-Versioned pipeline + metadata
-       |
-       +----> Streamlit multipage dashboard
-       |
-       +----> FastAPI inference/economics API
-```
+~~~mermaid
+flowchart TD
+    A[Public launch datasets] --> B[Validation and preprocessing]
+    B --> C[Processed datasets]
+    B --> D[(SQLite analytics warehouse)]
+    C --> E[Benchmark training and evaluation]
+    E --> F[Registered model and provenance metadata]
+    F --> G[Streamlit dashboard]
+    F --> H[FastAPI prediction service]
+    D --> G
+    I[Illustrative economic assumptions] --> J[Mission economics engine]
+    J --> G
+    J --> H
+~~~
 
-The model-training benchmark (90 records in the current project design) and the larger operational/history dataset serve different purposes. They should not be treated as interchangeable training samples. Dataset provenance, duplicate handling, date ranges, and target definitions are important when interpreting any metric.
+## Quick start
 
-## Project layout
+### 1. Create an isolated environment
 
-```text
-.
-├── app.py                     # Streamlit entry point
-├── pages/                     # Dashboard modules
-├── src/spacey/
-│   ├── analytics/              # SQLite analytics
-│   ├── data/                   # Ingestion, schema, validation
-│   ├── economics/               # Scenario cost calculations
-│   ├── models/                  # Training, evaluation, registry
-│   ├── services/                # FastAPI service
-│   └── ui/                      # Theme and charts
-├── scripts/
-│   ├── prepare_data.py
-│   └── train_model.py
-├── data/                       # Source/processed data and SQLite database
-├── models/registry/             # Serialized model and registry metadata
-├── tests/                       # Automated tests
-├── docs/                        # Architecture, methodology, limitations
-├── requirements.txt
-├── pyproject.toml
-└── Dockerfile
-```
+**Windows PowerShell**
 
-## Run locally
-
-Use Python 3.12 and run commands with the same project interpreter that installs dependencies and loads the serialized model.
-
-### Windows PowerShell
-
-```powershell
-git clone https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-.git
-cd Space-Y-Launch-Prediction-Capstone-Project-
-
+~~~powershell
+git clone https://github.com/Arvindhbabu/spacey-intelligence.git
+cd spacey-intelligence
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+~~~
 
-# Confirm interpreter, dependency pins, and model-artifact provenance before loading the model
-python -c "import sys, sklearn; print(sys.executable); print('scikit-learn', sklearn.__version__)"
-python scripts/diagnose_environment.py
+**macOS / Linux**
 
-# Optional: rebuild the data artifacts and train a fresh registered model
-python scripts/prepare_data.py
-python scripts/train_model.py
-
-# Launch the dashboard
-python -m streamlit run app.py
-```
-
-### macOS / Linux
-
-```bash
-git clone https://github.com/Arvindhbabu/Space-Y-Launch-Prediction-Capstone-Project-.git
-cd Space-Y-Launch-Prediction-Capstone-Project-
+~~~bash
+git clone https://github.com/Arvindhbabu/spacey-intelligence.git
+cd spacey-intelligence
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+~~~
+
+> The clone URL above uses the recommended repository name. Rename the repository in GitHub first if that name has not been applied yet.
+
+### 2. Check the environment and model artifact
+
+Run these from the repository root before starting prediction features:
+
+~~~bash
 python scripts/diagnose_environment.py
-python scripts/prepare_data.py
-python scripts/train_model.py
+python -m pip check
+~~~
+
+The preflight checks the interpreter's installed dependency pins and the scikit-learn version recorded in the registered-model metadata. It does not deserialize the model or certify model quality.
+
+### 3. Start the Streamlit dashboard
+
+~~~bash
 python -m streamlit run app.py
-```
+~~~
 
-The data preparation script may retrieve external data and therefore requires network access. If you intend to use the checked-in dataset snapshot, inspect the script first to understand whether it overwrites local artifacts.
+Open the local URL printed by Streamlit, typically http://localhost:8501.
 
-## Run the API
+### 4. Optional: start the API
 
-In a separate activated environment/terminal:
+In a separate terminal using the same activated environment:
 
-```bash
-python -m uvicorn src.spacey.services.api:app --host 127.0.0.1 --port 8000
-```
+~~~bash
+python -m uvicorn spacey.services.api:app --app-dir src --host 127.0.0.1 --port 8000
+~~~
 
-Available endpoints:
+API documentation is available at http://127.0.0.1:8000/docs.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/health` | API and model readiness |
-| GET | `/metadata` | Registered-model metadata |
-| POST | `/predict` | Single launch scenario |
-| POST | `/predict/batch` | Multiple scenarios |
-| POST | `/economics` | Illustrative mission-economics calculation |
+| GET | /health | Service and model readiness |
+| GET | /metadata | Registered model metadata and evaluation evidence |
+| POST | /predict | Predict one hypothetical scenario |
+| POST | /predict/batch | Predict multiple scenarios |
+| POST | /economics | Calculate illustrative mission-economics results |
 
-Interactive API documentation: `http://127.0.0.1:8000/docs`.
+The API schema is defined in `src/spacey/data/feature_schema.py` and `src/spacey/services/api.py`.
 
-### Example prediction request
+### 5. Optional: run with Docker
 
-Use the request schema defined in `src/spacey/data/feature_schema.py` and `src/spacey/services/api.py`. The API accepts the application’s scenario fields, not necessarily the raw training column names. Check that schema before copying requests from older versions of this README.
+~~~bash
+docker compose up --build
+~~~
+
+The Compose configuration exposes the dashboard on port 8501 and the API on port 8000. Interactive container behavior should be verified in the target environment; a successful image build alone does not prove every endpoint is healthy.
+
+## Data preparation and model training
+
+The repository includes source/processed data artifacts and a registered model. The scripts below are **optional refresh/rebuild operations** and may change local generated files:
+
+~~~bash
+python scripts/prepare_data.py
+python scripts/train_model.py
+~~~
+
+Review the scripts and preserve local work before rerunning them. Data preparation can access external sources; do not assume that a local refresh will exactly reproduce a previous snapshot. The 90-record benchmark and the larger operational launch archive have different purposes and must not be treated as interchangeable samples.
 
 ## Tests and quality checks
 
-```bash
+~~~bash
+python scripts/diagnose_environment.py
+python -m pip check
+python -m compileall -q app.py pages src scripts tests
 python -m pytest tests/ -v
-```
+~~~
 
-Run tests from the same activated environment used to install requirements. A test result from one interpreter does not verify a model artifact loaded by another interpreter. Model files serialized with joblib/scikit-learn must be used in a compatible environment; when in doubt, regenerate them with the project's pinned dependencies.
+Use the same activated virtual environment to install dependencies, train/load the model, launch Streamlit, run the API, and execute tests. The serialized scikit-learn artifact should be loaded only in a compatible environment. If provenance and pinned versions disagree, correct the environment or retrain the model rather than patching serialized estimator attributes.
 
-CI is configured in `.github/workflows/ci.yml`. Check the live workflow badge above for the latest actual status. This README does not assert that a workflow has passed unless GitHub Actions reports it.
+The live [GitHub Actions page](https://github.com/Arvindhbabu/spacey-intelligence/actions) is the source of truth for current automation status.
 
 ## Model evaluation and limitations
 
-- The benchmark is small (90 records in the current design); holdout estimates can vary considerably with a few examples.
-- ROC-AUC, precision, recall, F1, PR-AUC, and Brier score measure different properties. No single metric establishes operational readiness.
-- Historical associations are not causal engineering relationships. The model does not simulate thrust, weather, trajectory, fuel reserves, sea state, hardware condition, or other physical variables.
-- Thresholds, confidence labels, and costs are analytical choices that need independent validation.
-- Verify data dates, target definitions, duplicate records, class balance, and any overlap between benchmark and operational datasets before drawing conclusions.
+- The benchmark contains only about 90 records; a holdout set of 18 examples produces uncertain estimates.
+- Accuracy, ROC-AUC, precision, recall, specificity, PR-AUC, and Brier score describe different aspects of performance.
+- A high recall can coexist with poor failure detection. Review the confusion matrix, specificity, calibration, and uncertainty—not a single headline metric.
+- Historical association is not causation. The model does not simulate trajectories, thrust, propellant reserves, weather, sea state, vehicle condition, or other flight-dynamics variables.
+- Economic recommendations are conditional outputs of a simplified assumption-based formula, not real commercial or aerospace recommendations.
+- Verify source provenance, date filtering, target definitions, duplicate records, class balance, and potential dataset overlap before making claims from the analysis.
 
-See [Model Card](docs/MODEL_CARD.md), [Methodology](docs/METHODOLOGY.md), [Limitations](docs/LIMITATIONS.md), [Economics Assumptions](docs/ECONOMICS_ASSUMPTIONS.md), [Verification Report](docs/VERIFICATION_REPORT.md), and [Local Environment Troubleshooting](docs/LOCAL_ENVIRONMENT_TROUBLESHOOTING.md).
+Read the [Model Card](docs/MODEL_CARD.md), [Methodology](docs/METHODOLOGY.md), [Limitations](docs/LIMITATIONS.md), [Economics Assumptions](docs/ECONOMICS_ASSUMPTIONS.md), [Verification Report](docs/VERIFICATION_REPORT.md), and [Local Environment Troubleshooting](docs/LOCAL_ENVIRONMENT_TROUBLESHOOTING.md).
 
-## Data and attribution
+## Project layout
 
-This project was developed from the IBM/Coursera Applied Data Science Capstone learning workflow and public historical launch records. See the documentation and source files for the dataset preparation process and citations. SpaceY is a fictional analytical framing; it is not affiliated with SpaceX.
+~~~text
+.
+├── app.py                         # Streamlit entry point
+├── pages/                         # Multipage dashboard
+├── src/spacey/
+│   ├── analytics/                 # SQLite analytics
+│   ├── data/                      # Data loading, schemas, validation
+│   ├── economics/                 # Scenario economics
+│   ├── models/                    # Training, evaluation, registry
+│   ├── services/                  # FastAPI service
+│   └── ui/                        # UI theme and charts
+├── scripts/                       # Data/model automation and preflight checks
+├── data/                          # Source, processed, and SQLite artifacts
+├── models/registry/                # Model artifact and metadata
+├── docs/                           # Methodology, model card, limitations
+├── tests/                          # Automated tests
+├── .github/                        # CI and contribution templates
+├── Dockerfile
+├── docker-compose.yml
+├── pyproject.toml
+└── requirements.txt
+~~~
 
-## License
+## Data attribution and license
 
-See [LICENSE](LICENSE) if present in the repository. Confirm licensing and redistribution terms for each data source independently.
+The project extends the IBM/Coursera Applied Data Science Capstone learning workflow and uses public historical launch information. Consult the data-preparation code and documentation for provenance. **SpaceY is a fictional analytical framing and is not affiliated with SpaceX.**
+
+A software license has not yet been selected for this repository. Until a license is added, the public availability of the source code should not be interpreted as permission to redistribute or reuse it under an open-source license.

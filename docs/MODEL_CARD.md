@@ -1,66 +1,69 @@
-# SpaceY Intelligence — Production Model Card
+# SpaceY Intelligence — Model Card
 
-## 1. Model Details
-- **Model Identifier**: `SpaceY-Recovery-Classifier-v1.0`
-- **Architecture**: `LogisticRegression` (with integrated `ColumnTransformer` preprocessing)
-- **Framework**: `scikit-learn 1.5.1`
-- **Serialization**: `models/registry/best_pipeline.joblib`
-- **Trained On**: Foundational Benchmark Capstone Dataset ($n=90$, 2010–2020)
-- **Primary Objective**: Binary classification of first-stage Falcon 9 booster recovery success vs. failure/unattempted.
+## Summary
 
----
+This document describes the registered educational classifier and the evidence recorded in the repository's model metadata. It is **not a production-readiness approval**.
 
-## 2. Intended Use & Target Users
-- **Intended Use**: Operational scenario simulation, preliminary launch bidding decision-support, sensitivity analysis, and comparative flight analytics.
-- **Target Users**: Mission analysts, launch operations architects, and commercial bidding teams.
-- **Out-of-Scope Use**: Real-time flight control, onboard guidance, navigation, and control (GNC), or certified aerospace range safety clearance.
+## Model details
 
----
+| Field | Description |
+|---|---|
+| Model identifier | SpaceY recovery classifier v1 |
+| Pipeline | scikit-learn preprocessing pipeline with Logistic Regression classifier |
+| Artifact | `models/registry/best_pipeline.joblib` |
+| Provenance | `models/registry/registry_metadata.json` |
+| Recorded training environment | Python 3.12.10, scikit-learn 1.9.1 (from registry metadata; runtime compatibility must be checked before loading) |
+| Target | Historical recovery outcome class as defined by the dataset preparation pipeline |
 
-## 3. Training & Evaluation Data
-- **Training Partition**: 72 flights (48 successes, 24 failures).
-- **Holdout Test Partition**: 18 flights (12 successes, 6 failures).
-- **Feature Set**: Pre-launch knowable features only (`PayloadMass`, `Flights`, `Block`, `FlightNumber`, `LaunchSite`, `Orbit`, `GridFins`, `Legs`, `Reused`).
+## Intended use
 
----
+Appropriate uses include classroom demonstrations, model-evaluation exercises, historical pattern exploration, and comparison of hypothetical inputs through the dashboard.
 
-## 4. Empirical Evaluation Metrics (Holdout Partition)
+The model is **not** intended for vehicle guidance, launch authorization, certified range safety, commercial pricing decisions, engineering certification, or real mission planning.
 
-| Metric | Holdout Value | Description |
-|---|---|---|
-| **ROC-AUC** | **0.8194** | Ability to rank recovery successes above recovery failures |
-| **F1-Score** | **0.8571** | Harmonic mean of precision and recall |
-| **Accuracy** | **0.7778** | Overall correct classification rate |
-| **Precision** | **0.7500** | Fraction of predicted recoveries that were true successes |
-| **Recall (Sensitivity)** | **1.0000** | Fraction of actual recoveries correctly predicted |
-| **Specificity** | **0.3333** | Fraction of actual failures correctly identified |
-| **PR-AUC (Avg Precision)**| **0.8934** | Area under the precision-recall curve |
-| **Brier Score** | **0.1496** | Mean squared difference between predicted probability and true label (lower is better) |
-| **Inference Latency** | **~10.98 ms** | Average single-scenario inference latency |
+## Data and evaluation design
 
-### Confusion Matrix (Holdout $n=18$)
-$$\begin{pmatrix} \text{TN} = 2 & \text{FP} = 4 \\ \text{FN} = 0 & \text{TP} = 12 \end{pmatrix}$$
+The current registry metadata describes a 90-record benchmark with a stratified 72-record training partition and an 18-record holdout partition. The recorded holdout partition contains 12 positive and 6 negative examples.
 
----
+The small sample size means a small number of records can materially change the reported metrics. Dataset provenance, temporal validity, duplicate handling, target definition, and separation between the benchmark and operational archive must be examined before interpreting results.
 
-## 5. Model Selection Justification (Why Logistic Regression Won)
-In comparative testing across 7 models (including Random Forest, Gradient Boosting, SVM, KNN, Decision Tree, and Dummy Baseline):
-- High-capacity ensemble models (Random Forest, Gradient Boosting) achieved holdout ROC-AUC of $0.7500 - 0.7569$.
-- On small-to-medium sample sizes with high feature-to-sample ratios in categorical dummies, ensemble trees tend to overfit to idiosyncratic training splits.
-- Regularized Logistic Regression ($L_2$ penalty) generalized with superior smoothness and calibration, achieving the highest holdout ROC-AUC (**0.8194**) and highest PR-AUC (**0.8934**).
+## Recorded holdout results
 
----
+The values below reproduce the current registered metadata snapshot; retraining may change them.
 
-## 6. Top Feature Drivers (Permutation Importance on Test Partition)
-1. `FlightNumber` (+0.0958 ROC-AUC drop): Captures organizational learning and procedure refinement over time.
-2. `Block` (+0.0625): Design iterations from Block 1 to Block 5 dramatically improved thermal and structural landing capability.
-3. `Orbit` (+0.0514): Orbital velocity requirements directly impact stage separation speed and propellant margin.
-4. `Legs` (+0.0181): Essential physical equipment for touchdown.
-5. `LaunchSite` (+0.0167): Complex geography correlates with orbital corridors.
+| Metric | Recorded value | Interpretation |
+|---|---:|---|
+| Accuracy | 0.7778 | Fraction of holdout records correctly classified |
+| ROC-AUC | 0.8194 | Ranking ability across probability thresholds |
+| PR-AUC | 0.8934 | Precision-recall performance summary |
+| Precision | 0.7500 | Fraction of predicted successes that were positive |
+| Recall | 1.0000 | Fraction of actual positive outcomes identified |
+| Specificity | 0.3333 | Fraction of actual negative outcomes identified |
+| F1 score | 0.8571 | Harmonic mean of precision and recall |
+| Brier score | 0.1496 | Mean squared probability error; lower is better |
+| Recorded inference latency | 18.15 ms | Snapshot value in model registry metadata; environment and measurement details may affect this value |
 
----
+### Confusion matrix
 
-## 7. Limitations & Caveats
-- Calibrated primarily on historical Falcon 9 recovery testing flights.
-- High recall (1.00) paired with moderate specificity (0.33) indicates the model leans optimistic on recovery, reflecting the empirical success trajectory of the vehicle.
-- Sea-state ocean conditions (wave swell height > 3m) and upper-atmosphere winds are unmodeled environmental variables.
+The recorded 18-record holdout confusion matrix is TN = 2, FP = 4, FN = 0, TP = 12.
+
+The specificity of 0.3333 is a material limitation: only two of six negative outcomes were correctly identified at the recorded decision threshold. The high recall must not be presented without this context.
+
+## Features and interpretation
+
+The registered feature set contains payload mass, booster flight count, block, flight sequence number, launch site, orbit, grid fins, landing legs, and reuse indicator. These are historical statistical predictors—not a physical simulation.
+
+The registry's permutation importance values are uncertain on this small holdout. Importance measures indicate model dependence, not causation, engineering necessity, or a guarantee that changing a feature will change the real-world outcome.
+
+## Known limitations and risks
+
+- The benchmark and holdout sample are small.
+- Historical launch practices, hardware, targets, and recovery techniques change over time.
+- The dataset does not model all relevant physical and environmental conditions.
+- Predicted probabilities can be miscalibrated outside the sampled data distribution.
+- A single random holdout is not a robust estimate of future performance.
+- Economic outputs depend on user-provided illustrative assumptions and are separate from aerospace validation.
+
+## Recommended evaluation before further claims
+
+Use temporally aware validation where possible; report confidence intervals or repeated-split variability; audit leakage, class balance, missingness, dates, and duplicate/overlapping records; calibrate probabilities on data separate from the final test set; and evaluate failure detection explicitly. Do not use the current model for operational aerospace decisions.

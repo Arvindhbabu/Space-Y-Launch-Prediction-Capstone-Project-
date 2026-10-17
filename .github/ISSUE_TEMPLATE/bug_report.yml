@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a reproducible defect in the dashboard, API, data pipeline, or tooling.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please remove credentials, tokens, and personal data from logs before submitting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Problem summary
+      description: Describe what failed and where.
+      placeholder: The Predictive Lab fails when...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide a minimal, ordered set of steps.
+      placeholder: |
+        1. Activate the project virtual environment.
+        2. Start the dashboard.
+        3. Enter the scenario...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and sanitized logs
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.x"
+  - type: input
+    id: sklearn
+    attributes:
+      label: scikit-learn version
+      placeholder: "Output of python -c \"import sklearn; print(sklearn.__version__)\""
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - Streamlit dashboard
+        - FastAPI
+        - Data preparation
+        - Model training or registry
+        - Mission economics
+        - Docker or CI
+        - Documentation
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed secrets and personal data from this report.
+          required: true
