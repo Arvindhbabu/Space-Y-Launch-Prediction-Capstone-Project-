@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacey-intelligence"
+version = "1.0.0"
+description = "SpaceY Intelligence: Mission Analytics & First-Stage Recovery Decision-Support Platform"
+authors = [{ name = "SpaceY Engineering Team" }]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit>=1.65.0",
+    "pandas>=3.0.0",
+    "numpy>=2.5.0",
+    "scikit-learn>=1.9.0",
+    "scipy>=1.18.0",
+    "joblib>=1.6.0",
+    "plotly>=7.1.0",
+    "folium>=0.20.0",
+    "streamlit-folium>=0.27.0",
+    "pydantic>=2.14.0",
+    "fastapi>=0.143.0",
+    "uvicorn>=0.54.0",
+    "requests>=2.34.0",
+    "httpx>=0.28.0",
+    "pytest>=9.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"

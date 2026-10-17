@@ -1,0 +1,328 @@
+{
+  "model_name": "Logistic_Regression",
+  "features": [
+    "PayloadMass",
+    "Flights",
+    "Block",
+    "FlightNumber",
+    "LaunchSite",
+    "Orbit",
+    "GridFins",
+    "Legs",
+    "Reused"
+  ],
+  "feature_schema_version": "v1.0",
+  "training_samples": 72,
+  "test_samples": 18,
+  "selected_decision_threshold": 0.5,
+  "best_hyperparameters": {
+    "classifier__C": 1.0,
+    "classifier__solver": "liblinear"
+  },
+  "evaluation_metrics": {
+    "model_name": "Logistic_Regression",
+    "sample_size": 18,
+    "accuracy": 0.7778,
+    "balanced_accuracy": 0.6667,
+    "precision": 0.75,
+    "recall": 1.0,
+    "specificity": 0.3333,
+    "f1_score": 0.8571,
+    "roc_auc": 0.8194,
+    "pr_auc": 0.8934,
+    "brier_score": 0.1496,
+    "confusion_matrix": {
+      "tn": 2,
+      "fp": 4,
+      "fn": 0,
+      "tp": 12
+    },
+    "roc_curve": [
+      {
+        "fpr": 0.0,
+        "tpr": 0.0
+      },
+      {
+        "fpr": 0.0,
+        "tpr": 0.0833
+      },
+      {
+        "fpr": 0.0,
+        "tpr": 0.3333
+      },
+      {
+        "fpr": 0.1667,
+        "tpr": 0.3333
+      },
+      {
+        "fpr": 0.1667,
+        "tpr": 0.5833
+      },
+      {
+        "fpr": 0.3333,
+        "tpr": 0.5833
+      },
+      {
+        "fpr": 0.3333,
+        "tpr": 1.0
+      },
+      {
+        "fpr": 1.0,
+        "tpr": 1.0
+      }
+    ],
+    "pr_curve": [
+      {
+        "precision": 0.6667,
+        "recall": 1.0
+      },
+      {
+        "precision": 0.7059,
+        "recall": 1.0
+      },
+      {
+        "precision": 0.75,
+        "recall": 1.0
+      },
+      {
+        "precision": 0.8,
+        "recall": 1.0
+      },
+      {
+        "precision": 0.8571,
+        "recall": 1.0
+      },
+      {
+        "precision": 0.8462,
+        "recall": 0.9167
+      },
+      {
+        "precision": 0.8333,
+        "recall": 0.8333
+      },
+      {
+        "precision": 0.8182,
+        "recall": 0.75
+      },
+      {
+        "precision": 0.8,
+        "recall": 0.6667
+      },
+      {
+        "precision": 0.7778,
+        "recall": 0.5833
+      },
+      {
+        "precision": 0.875,
+        "recall": 0.5833
+      },
+      {
+        "precision": 0.8571,
+        "recall": 0.5
+      },
+      {
+        "precision": 0.8333,
+        "recall": 0.4167
+      },
+      {
+        "precision": 0.8,
+        "recall": 0.3333
+      },
+      {
+        "precision": 1.0,
+        "recall": 0.3333
+      },
+      {
+        "precision": 1.0,
+        "recall": 0.25
+      },
+      {
+        "precision": 1.0,
+        "recall": 0.1667
+      },
+      {
+        "precision": 1.0,
+        "recall": 0.0833
+      },
+      {
+        "precision": 1.0,
+        "recall": 0.0
+      }
+    ],
+    "calibration_curve": [
+      {
+        "prob_pred": 0.0957,
+        "prob_true": 0.0
+      },
+      {
+        "prob_pred": 0.5934,
+        "prob_true": 0.0
+      },
+      {
+        "prob_pred": 0.7024,
+        "prob_true": 0.75
+      },
+      {
+        "prob_pred": 0.8692,
+        "prob_true": 0.8182
+      }
+    ],
+    "inference_latency_ms": 18.15,
+    "cv_score_roc_auc": 0.8249,
+    "best_params": {
+      "classifier__C": 1.0,
+      "classifier__solver": "liblinear"
+    }
+  },
+  "all_models_comparison": [
+    {
+      "Model": "Logistic_Regression",
+      "CV ROC-AUC": 0.8249,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8571,
+      "Holdout ROC-AUC": 0.8194,
+      "Holdout PR-AUC": 0.8934,
+      "Precision": 0.75,
+      "Recall": 1.0,
+      "Specificity": 0.3333,
+      "Brier Score": 0.1496,
+      "Latency (ms)": 18.15
+    },
+    {
+      "Model": "Decision_Tree",
+      "CV ROC-AUC": 0.7882,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8462,
+      "Holdout ROC-AUC": 0.7986,
+      "Holdout PR-AUC": 0.8385,
+      "Precision": 0.7857,
+      "Recall": 0.9167,
+      "Specificity": 0.5,
+      "Brier Score": 0.1486,
+      "Latency (ms)": 53.391
+    },
+    {
+      "Model": "K_Nearest_Neighbors",
+      "CV ROC-AUC": 0.7951,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8462,
+      "Holdout ROC-AUC": 0.7986,
+      "Holdout PR-AUC": 0.8557,
+      "Precision": 0.7857,
+      "Recall": 0.9167,
+      "Specificity": 0.5,
+      "Brier Score": 0.1596,
+      "Latency (ms)": 66.689
+    },
+    {
+      "Model": "Support_Vector_Machine",
+      "CV ROC-AUC": 0.8414,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8571,
+      "Holdout ROC-AUC": 0.7639,
+      "Holdout PR-AUC": 0.8658,
+      "Precision": 0.75,
+      "Recall": 1.0,
+      "Specificity": 0.3333,
+      "Brier Score": 0.176,
+      "Latency (ms)": 36.213
+    },
+    {
+      "Model": "Gradient_Boosting",
+      "CV ROC-AUC": 0.8186,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8571,
+      "Holdout ROC-AUC": 0.7569,
+      "Holdout PR-AUC": 0.7967,
+      "Precision": 0.75,
+      "Recall": 1.0,
+      "Specificity": 0.3333,
+      "Brier Score": 0.1529,
+      "Latency (ms)": 15.814
+    },
+    {
+      "Model": "Random_Forest",
+      "CV ROC-AUC": 0.8118,
+      "Holdout Accuracy": 0.7778,
+      "Holdout F1": 0.8462,
+      "Holdout ROC-AUC": 0.75,
+      "Holdout PR-AUC": 0.7849,
+      "Precision": 0.7857,
+      "Recall": 0.9167,
+      "Specificity": 0.5,
+      "Brier Score": 0.1506,
+      "Latency (ms)": 19.629
+    },
+    {
+      "Model": "Dummy_Baseline",
+      "CV ROC-AUC": 0.6667,
+      "Holdout Accuracy": 0.6667,
+      "Holdout F1": 0.8,
+      "Holdout ROC-AUC": 0.5,
+      "Holdout PR-AUC": 0.6667,
+      "Precision": 0.6667,
+      "Recall": 1.0,
+      "Specificity": 0.0,
+      "Brier Score": 0.3333,
+      "Latency (ms)": 20.608
+    }
+  ],
+  "top_features_importance": [
+    {
+      "Feature": "FlightNumber",
+      "Importance_Mean": 0.09583333333333335,
+      "Importance_Std": 0.07843226613053059
+    },
+    {
+      "Feature": "Block",
+      "Importance_Mean": 0.06250000000000007,
+      "Importance_Std": 0.06492219940289025
+    },
+    {
+      "Feature": "Orbit",
+      "Importance_Mean": 0.05138888888888897,
+      "Importance_Std": 0.031087540674443595
+    },
+    {
+      "Feature": "Legs",
+      "Importance_Mean": 0.018055555555555623,
+      "Importance_Std": 0.055918950386659436
+    },
+    {
+      "Feature": "LaunchSite",
+      "Importance_Mean": 0.01666666666666672,
+      "Importance_Std": 0.05853140973807079
+    },
+    {
+      "Feature": "PayloadMass",
+      "Importance_Mean": 0.011111111111111127,
+      "Importance_Std": 0.016197088596792492
+    },
+    {
+      "Feature": "GridFins",
+      "Importance_Mean": 0.009722222222222288,
+      "Importance_Std": 0.042149974737482
+    },
+    {
+      "Feature": "Reused",
+      "Importance_Mean": 0.00277777777777779,
+      "Importance_Std": 0.010393492741038771
+    },
+    {
+      "Feature": "Flights",
+      "Importance_Mean": -0.004166666666666608,
+      "Importance_Std": 0.04524027076361761
+    }
+  ],
+  "limitations": "Model is calibrated on historical Falcon 9 launches. Predictive probabilities reflect empirical associations from historical testing and flight iterations, not certified flight-dynamics certifications. Atmospheric variations, unexpected engine sensor anomalies, and extreme sea-state weather may alter real recovery outcomes.",
+  "saved_at": "2026-10-13T14:56:23.626515+00:00",
+  "package_versions": {
+    "scikit-learn": "1.9.1",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "joblib": "1.6.0",
+    "python": "3.12.10"
+  },
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "sklearn_version": "1.9.1"
+}
