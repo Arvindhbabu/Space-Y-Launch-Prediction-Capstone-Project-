@@ -8,7 +8,7 @@ authors:
     affiliation: "SRM TRP Engineering College"
 version: 1.0.1
 date-released: "2026-10-17"
-url: "https://github.com/Arvindhbabu/SpaceY-Intelligence"
+url: "https://github.com/Arvindhbabu/spacey-intelligence"
 abstract: >-
   An educational launch analytics project that combines a Streamlit dashboard,
   historical launch exploration, a scikit-learn booster-recovery classifier,
