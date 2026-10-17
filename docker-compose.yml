@@ -1,21 +1,38 @@
-version: "3.8"
-
 services:
   spacey-app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: spacey-intelligence-dashboard
     ports:
       - "8501:8501"
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
     restart: unless-stopped
 
   spacey-api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: spacey-intelligence-api
+    command:
+      - python
+      - -m
+      - uvicorn
+      - spacey.services.api:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
     ports:
       - "8000:8000"
-    command: ["uvicorn", "spacey.services.api:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app/src
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
     restart: unless-stopped

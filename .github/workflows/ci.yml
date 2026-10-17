@@ -31,5 +31,18 @@ jobs:
           python -c "import sys, sklearn, pandas, numpy; print(sys.executable); print('sklearn', sklearn.__version__); print('pandas', pandas.__version__); print('numpy', numpy.__version__)"
       - name: Validate dependency graph
         run: python -m pip check
+      - name: Compile Python sources
+        run: python -m compileall -q app.py pages src scripts tests
       - name: Run tests
         run: python -m pytest tests/ -v
+
+  container-build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+      - name: Build Docker image
+        run: docker build --tag spacey-intelligence:ci .

@@ -117,7 +117,7 @@ miss_df = pd.DataFrame({
 })
 miss_df = miss_df.sort_values(by="Missing Count", ascending=False).reset_index(drop=True)
 
-st.dataframe(miss_df, use_container_width=True, hide_index=True)
+st.dataframe(miss_df, width="stretch", hide_index=True)
 
 st.markdown("---")
 
@@ -162,7 +162,7 @@ provenance_records = [
     },
 ]
 
-st.dataframe(pd.DataFrame(provenance_records), use_container_width=True, hide_index=True)
+st.dataframe(pd.DataFrame(provenance_records), width="stretch", hide_index=True)
 
 st.markdown("---")
 

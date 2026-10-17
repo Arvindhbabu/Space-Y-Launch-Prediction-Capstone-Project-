@@ -82,7 +82,7 @@ with col_map:
     m = folium.Map(
         location=[32.5, -98.0],
         zoom_start=4,
-        tiles="CartoDB positron",
+        tiles="OpenStreetMap",
     )
 
     # Add verified complex markers
@@ -156,4 +156,4 @@ render_section_header(
     icon="database",
     variant="emerald",
 )
-st.dataframe(site_stats, use_container_width=True, hide_index=True)
+st.dataframe(site_stats, width="stretch", hide_index=True)

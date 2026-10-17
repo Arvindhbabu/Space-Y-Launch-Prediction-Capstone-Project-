@@ -135,7 +135,7 @@ with col_v1:
             legend=dict(bgcolor="rgba(255, 255, 255, 0.9)", bordercolor="#E2E8F0", borderwidth=1),
             margin=dict(l=40, r=40, t=20, b=40),
         )
-        st.plotly_chart(fig_scatter, use_container_width=True)
+        st.plotly_chart(fig_scatter, width="stretch")
     else:
         st.warning("No records match the selected filter criteria.")
 
@@ -164,7 +164,7 @@ with col_v2:
             yaxis=dict(gridcolor="#E2E8F0"),
             margin=dict(l=40, r=40, t=20, b=40),
         )
-        st.plotly_chart(fig_box, use_container_width=True)
+        st.plotly_chart(fig_box, width="stretch")
 
 st.markdown("---")
 
@@ -184,7 +184,7 @@ available_show_cols = [c for c in cols_to_show if c in filtered.columns]
 
 st.dataframe(
     filtered[available_show_cols],
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 

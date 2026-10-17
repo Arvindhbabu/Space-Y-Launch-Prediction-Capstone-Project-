@@ -1,0 +1,25 @@
+# Git metadata and local developer environments
+.git
+.github
+.venv
+venv
+env
+ENV
+
+# Python and test caches
+__pycache__
+*.py[cod]
+.pytest_cache
+.coverage
+htmlcov
+
+# Editor and operating-system state
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Large materials not needed to run the application
+notebooks
+presentation
+README.pdf

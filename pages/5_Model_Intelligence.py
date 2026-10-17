@@ -62,7 +62,7 @@ fitted strictly within fold partitions. The final evaluation was computed on an 
 leaderboard_data = metadata.get("all_models_comparison", [])
 if leaderboard_data:
     lead_df = pd.DataFrame(leaderboard_data)
-    st.dataframe(lead_df, use_container_width=True, hide_index=True)
+    st.dataframe(lead_df, width="stretch", hide_index=True)
 
 st.markdown("---")
 
@@ -95,19 +95,19 @@ col_plot1, col_plot2 = st.columns(2)
 
 with col_plot1:
     cm_dict = win_metrics.get("confusion_matrix", {"tn": 2, "fp": 4, "fn": 0, "tp": 12})
-    st.plotly_chart(plot_confusion_matrix(cm_dict, model_name=win_name), use_container_width=True)
+    st.plotly_chart(plot_confusion_matrix(cm_dict, model_name=win_name), width="stretch")
 
 with col_plot2:
     roc_points = win_metrics.get("roc_curve", [])
     roc_auc = win_metrics.get("roc_auc", 0.5)
-    st.plotly_chart(plot_roc_curve(roc_points, roc_auc, model_name=win_name), use_container_width=True)
+    st.plotly_chart(plot_roc_curve(roc_points, roc_auc, model_name=win_name), width="stretch")
 
 col_plot3, col_plot4 = st.columns(2)
 
 with col_plot3:
     calib_points = win_metrics.get("calibration_curve", [])
     brier_score = win_metrics.get("brier_score", 0.2)
-    st.plotly_chart(plot_calibration_curve(calib_points, brier_score), use_container_width=True)
+    st.plotly_chart(plot_calibration_curve(calib_points, brier_score), width="stretch")
 
 with col_plot4:
     render_section_header(
@@ -161,4 +161,4 @@ if perm_data:
         yaxis=dict(gridcolor="#E2E8F0", autorange="reversed"),
         margin=dict(l=60, r=40, t=20, b=40),
     )
-    st.plotly_chart(fig_perm, use_container_width=True)
+    st.plotly_chart(fig_perm, width="stretch")

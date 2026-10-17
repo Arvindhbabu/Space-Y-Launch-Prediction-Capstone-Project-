@@ -108,48 +108,87 @@ def parse_date_and_year(val: Any) -> Tuple[Optional[str], Optional[int]]:
     return None, None
 
 
-def clean_raw_wikipedia_dataset(raw_df: pd.DataFrame) -> pd.DataFrame:
+def parse_recovery_outcome(outcome_val: Any) -> Tuple[int, str]:
+    """Map historical booster recovery text to a binary outcome and readable label."""
+    s = clean_text_field(outcome_val)
+    lowered = s.casefold()
+
+    if not lowered or "no attempt" in lowered or "unattempted" in lowered:
+        return 0, "No Attempt"
+    # Check negative terms before the generic "success" substring: "unsuccessful"
+    # otherwise contains "success" and would be incorrectly labeled as a recovery.
+    if "unsuccess" in lowered or "failure" in lowered or re.search(r"\bfailed\b", lowered):
+        return 0, "Failure"
+    if "success" in lowered:
+        pad = "ASDS" if any(ds in s for ds in ["ASOG", "JRTI", "OCISLY"]) else "RTLS"
+        return 1, f"Success ({pad})"
+    return 0, "Expended / Unrecovered"
+
+
+def clean_raw_wikipedia_dataset(
+    raw_df: pd.DataFrame,
+    as_of_date: Optional[str] = None,
+) -> pd.DataFrame:
     """
-    Cleans the raw Wikipedia-scraped DataFrame (2023-2024 launches).
-    Filters out the 400+ table subrows, parses payload mass, standardizes features,
-    and constructs verified target variable.
+    Clean launch-event rows without inventing dates.
+
+    Only records with a parseable full date on or before as_of_date are kept.
+    When omitted, the current UTC date is used. This removes undated schedule
+    rows and future planned launches from historical analytics.
     """
     logger.info("Cleaning raw Wikipedia launch records (rows: %d)", len(raw_df))
 
-    # Step 1: Filter out Wikipedia mission description subrows
+    # Filter out Wikipedia mission-description subrows.
     def is_valid_launch_event(row: pd.Series) -> bool:
         dt_str = str(row.get("Date and time (UTC)", ""))
         if len(dt_str) > 75:
             return False
-        # Must contain a valid month name
         return any(m in dt_str for m in MONTH_NAMES)
 
     valid_mask = raw_df.apply(is_valid_launch_event, axis=1)
     df = raw_df[valid_mask].copy().reset_index(drop=True)
-    logger.info("Retained %d valid launch event rows after filtering description subrows", len(df))
+    logger.info("Retained %d candidate launch-event rows after filtering description subrows", len(df))
 
-    # Standardize column mappings
-    df["FlightNo_Clean"] = df["Flight No."].apply(clean_text_field)
+    # Parse full dates; year-only values are not converted into fictional dates.
     date_tuples = df["Date and time (UTC)"].apply(parse_date_and_year)
-    raw_dates = [t[0] for t in date_tuples]
-    years = [t[1] if t[1] is not None else 2023 for t in date_tuples]
-    df["Year"] = years
-    df["Date"] = [
-        raw_dates[i] if raw_dates[i] is not None else f"{years[i]}-06-15"
-        for i in range(len(raw_dates))
-    ]
+    parsed_dates = pd.Series(
+        pd.to_datetime([item[0] for item in date_tuples], errors="coerce"),
+        index=df.index,
+    )
+
+    if as_of_date is None:
+        cutoff = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
+    else:
+        cutoff = pd.Timestamp(as_of_date)
+        if cutoff.tzinfo is not None:
+            cutoff = cutoff.tz_convert("UTC").tz_localize(None)
+        cutoff = cutoff.normalize()
+
+    historical_mask = parsed_dates.notna() & (parsed_dates <= cutoff)
+    dropped_count = int((~historical_mask).sum())
+    if dropped_count:
+        logger.warning(
+            "Dropping %d row(s) with missing/incomplete dates or dates after %s",
+            dropped_count,
+            cutoff.strftime("%Y-%m-%d"),
+        )
+
+    df = df.loc[historical_mask].copy().reset_index(drop=True)
+    parsed_dates = parsed_dates.loc[historical_mask].reset_index(drop=True)
+    df["Date"] = parsed_dates.dt.strftime("%Y-%m-%d")
+    df["Year"] = parsed_dates.dt.year.astype(int)
+    df["FlightNo_Clean"] = df["Flight No."].apply(clean_text_field)
 
     df["LaunchSite"] = df["Launch site"].apply(clean_launch_site)
     df["Orbit"] = df["Orbit"].apply(clean_orbit)
     df["PayloadMass"] = df["Payload mass"].apply(extract_payload_kg)
 
-    # Impute missing payload mass with median of known payloads (never with 0)
+    # Impute missing payload mass with median of known payloads (never with zero).
     median_payload = df["PayloadMass"].median()
     df["PayloadMass"] = df["PayloadMass"].fillna(median_payload)
 
-    # Extract booster details
     booster_str = df["Version, booster[h]"].astype(str)
-    # Check flight number iteration (e.g. B1060-15 -> 15 flights)
+
     def extract_flights_count(s: str) -> int:
         match = re.search(r"B\d{4}[-‑](\d+)", s)
         if match:
@@ -158,38 +197,24 @@ def clean_raw_wikipedia_dataset(raw_df: pd.DataFrame) -> pd.DataFrame:
 
     df["Flights"] = booster_str.apply(extract_flights_count)
     df["Reused"] = (df["Flights"] > 1).astype(int)
-    df["Block"] = 5  # Modern Falcon 9 is Block 5
-    df["GridFins"] = 1  # Standard on modern recovery missions
-    df["Legs"] = 1      # Standard on modern recovery missions
-
-    # Target: Landing outcome classification
-    def parse_recovery_outcome(outcome_val: Any) -> Tuple[int, str]:
-        s = clean_text_field(outcome_val)
-        if not s or "no attempt" in s.lower() or "unattempted" in s.lower():
-            return 0, "No Attempt"
-        if "success" in s.lower():
-            pad = "ASDS" if any(ds in s for ds in ["ASOG", "JRTI", "OCISLY"]) else "RTLS"
-            return 1, f"Success ({pad})"
-        if "failure" in s.lower():
-            return 0, "Failure"
-        return 0, "Expended / Unrecovered"
+    df["Block"] = 5
+    df["GridFins"] = 1
+    df["Legs"] = 1
 
     recovery_info = df["Booster landing"].apply(parse_recovery_outcome)
-    df["Class"] = [r[0] for r in recovery_info]
-    df["LandingOutcome"] = [r[1] for r in recovery_info]
+    df["Class"] = [item[0] for item in recovery_info]
+    df["LandingOutcome"] = [item[1] for item in recovery_info]
 
-    # Geographic coordinates
-    df["Latitude"] = df["LaunchSite"].apply(lambda s: LAUNCH_SITES[s]["latitude"])
-    df["Longitude"] = df["LaunchSite"].apply(lambda s: LAUNCH_SITES[s]["longitude"])
-    df["Era"] = "Modern Operational (2023-2024)"
+    df["Latitude"] = df["LaunchSite"].apply(lambda site: LAUNCH_SITES[site]["latitude"])
+    df["Longitude"] = df["LaunchSite"].apply(lambda site: LAUNCH_SITES[site]["longitude"])
+    df["Era"] = "Modern Operational"
 
     cleaned_cols = [
         "Date", "Year", "LaunchSite", "Orbit", "PayloadMass",
         "Flights", "GridFins", "Legs", "Block", "Reused",
-        "LandingOutcome", "Class", "Latitude", "Longitude", "Era"
+        "LandingOutcome", "Class", "Latitude", "Longitude", "Era",
     ]
     return df[cleaned_cols]
-
 
 def clean_ibm_benchmark_dataset(ibm_raw_df: pd.DataFrame) -> pd.DataFrame:
     """

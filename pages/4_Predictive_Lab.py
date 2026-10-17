@@ -146,7 +146,7 @@ if mode == "Single Scenario Evaluation":
             variant="cyan",
         )
         explanations = explain_single_scenario(pipeline, scenario_df, ref_df)
-        st.plotly_chart(plot_scenario_attribution(explanations), use_container_width=True)
+        st.plotly_chart(plot_scenario_attribution(explanations), width="stretch")
 
     with col_limits:
         render_section_header(
@@ -212,4 +212,4 @@ else:
         "Scenario A": [f"{scen_a.payload_mass:,.0f}", scen_a.launch_site, scen_a.orbit, scen_a.flights, f"Block {scen_a.block}", "Yes" if scen_a.reused else "No", "Yes" if scen_a.grid_fins else "No", "Yes" if scen_a.legs else "No", f"{proba_a*100:.1f}%"],
         "Scenario B": [f"{scen_b.payload_mass:,.0f}", scen_b.launch_site, scen_b.orbit, scen_b.flights, f"Block {scen_b.block}", "Yes" if scen_b.reused else "No", "Yes" if scen_b.grid_fins else "No", "Yes" if scen_b.legs else "No", f"{proba_b*100:.1f}%"],
     })
-    st.dataframe(comparison_table, use_container_width=True, hide_index=True)
+    st.dataframe(comparison_table, width="stretch", hide_index=True)

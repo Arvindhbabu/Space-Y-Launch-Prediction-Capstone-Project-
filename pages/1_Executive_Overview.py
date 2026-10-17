@@ -57,6 +57,25 @@ bench_mask = df["Era"].str.contains("Foundational", na=False)
 bench_sr = (df[bench_mask]["Class"].mean() * 100) if bench_mask.any() else 0.0
 ops_mask = df["Era"].str.contains("Operational", na=False)
 ops_sr = (df[ops_mask]["Class"].mean() * 100) if ops_mask.any() else 0.0
+ops_dates = pd.to_datetime(df.loc[ops_mask, "Date"], errors="coerce").dropna()
+ops_period = (
+    f"{ops_dates.min().year}–{ops_dates.max().year}"
+    if not ops_dates.empty
+    else "No dated records"
+)
+
+def summarize_rate(mask: pd.Series) -> str:
+    sample = df.loc[mask, "Class"].dropna()
+    if sample.empty:
+        return "not available (n=0)"
+    return f"{sample.mean() * 100:.1f}% (n={len(sample):,})"
+
+foundational_summary = summarize_rate(bench_mask)
+operational_summary = summarize_rate(ops_mask)
+reused_mask = pd.to_numeric(df["Reused"], errors="coerce").eq(1)
+maiden_mask = pd.to_numeric(df["Reused"], errors="coerce").eq(0)
+reused_summary = summarize_rate(reused_mask)
+maiden_summary = summarize_rate(maiden_mask)
 
 with kpi1:
     st.metric("Total Flights", f"{tot_launches:,}", "Unified Archive")
@@ -65,7 +84,7 @@ with kpi2:
 with kpi3:
     st.metric("Foundational Era", f"{bench_sr:.1f}%", "2010–2020 Phase")
 with kpi4:
-    st.metric("Operational Era", f"{ops_sr:.1f}%", "Block 5 Fleet")
+    st.metric("Operational Era", f"{ops_sr:.1f}%", f"{ops_period} · n={int(ops_mask.sum()):,}")
 with kpi5:
     st.metric("Avg Payload Mass", f"{avg_payload:,.0f} kg", "Per Mission")
 
@@ -75,32 +94,32 @@ st.markdown("---")
 col_chart1, col_chart2 = st.columns([1.2, 0.8])
 
 with col_chart1:
-    st.plotly_chart(plot_annual_trends(annual_df), use_container_width=True)
+    st.plotly_chart(plot_annual_trends(annual_df), width="stretch")
 
 with col_chart2:
-    st.plotly_chart(plot_site_success_rates(site_df), use_container_width=True)
+    st.plotly_chart(plot_site_success_rates(site_df), width="stretch")
 
 col_chart3, col_chart4 = st.columns([1, 1])
 
 with col_chart3:
-    st.plotly_chart(plot_orbit_success_rates(orbit_df.head(8)), use_container_width=True)
+    st.plotly_chart(plot_orbit_success_rates(orbit_df.head(8)), width="stretch")
 
 with col_chart4:
     render_section_header(
         title="Key Empirical Findings",
-        subtitle="Operational takeaways distilled from 482 flight records.",
+        subtitle=f"Current archive: {len(df):,} records. Rates below are recalculated from this dataset.",
         icon="search",
         variant="purple",
     )
 
-    st.markdown("""
-    - **Fleet Maturity Effect**: Falcon 9 booster recovery underwent a dramatic structural shift:
-      - **Foundational Era (2010–2020)**: **66.7% success rate** (testing experimental grid fins, ocean splashdowns, and drone ship barges).
-      - **Modern Operational Era (2023–2024)**: **79.8% recovery rate** (including deliberate expendable missions) and **>98% on attempted landings**.
-    - **Booster Reuse Advantage**: Reused flight-proven boosters demonstrate a **94.0% recovery success rate**, compared to **34.3% on maiden booster flights** (due to early experimental prototypes).
-    - **Orbital Profile Impact**: High-energy missions to Geostationary Transfer Orbit (GTO) demand higher stage separation velocity, necessitating ocean drone ship recoveries (ASDS) with tighter propellant margins.
-    - **Launch Complex Specialization**: Cape Canaveral SLC-40 and Kennedy LC-39A handle high-cadence equatorial and ISS flights, while Vandenberg SLC-4E supports polar and Sun-Synchronous (SSO) orbits.
-    """)
+    st.markdown(
+        f"""
+    - **Observed era comparison:** Foundational records have a recovery-outcome rate of **{foundational_summary}**. The current operational archive spans **{ops_period}** with a rate of **{operational_summary}**. These are descriptive values from the currently loaded records, not a controlled comparison.
+    - **Booster reuse association:** Flight-proven booster records show **{reused_summary}** versus **{maiden_summary}** for maiden-flight records. This association is not causal; reused and maiden missions can differ in mission profile and selection.
+    - **Outcome interpretation:** The transformed target includes launch records with no attempted recovery or deliberate stage expenditure in the unsuccessful class. A class of 0 should not be interpreted automatically as hardware failure or as the probability of failure on an attempted landing.
+    - **Mission context:** Compare launch-site and orbit groupings using the charts above and their sample sizes. These historical correlations do not model trajectory, weather, sea state, propellant margins, vehicle health, or other physical constraints.
+    """
+    )
 
     render_section_header(
         title="Booster Reuse Performance Breakdown",
@@ -108,4 +127,4 @@ with col_chart4:
         icon="layers",
         variant="cyan",
     )
-    st.dataframe(reuse_df, use_container_width=True, hide_index=True)
+    st.dataframe(reuse_df, width="stretch", hide_index=True)

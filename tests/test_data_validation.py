@@ -7,7 +7,15 @@ import pandas as pd
 import numpy as np
 
 from spacey.data.validation import validate_dataset, DataQualityReport
-from spacey.data.preprocessing import extract_payload_kg, clean_text_field, clean_launch_site, clean_orbit
+from spacey.data.loader import _cache_has_valid_historical_dates
+from spacey.data.preprocessing import (
+    extract_payload_kg,
+    clean_text_field,
+    clean_launch_site,
+    clean_orbit,
+    clean_raw_wikipedia_dataset,
+    parse_recovery_outcome,
+)
 from spacey.data.feature_schema import LaunchScenarioInput
 
 
@@ -96,3 +104,58 @@ def test_scenario_input_validation():
 
     with pytest.raises(ValueError):
         LaunchScenarioInput(launch_site="Invalid Site Name")
+
+
+
+def test_wikipedia_cleaning_drops_incomplete_and_future_dates_without_fabricating():
+    raw = pd.DataFrame({
+        "Flight No.": ["F-001", "F-002", "F-003"],
+        "Date and time (UTC)": [
+            "December 12, 2024 10:00 UTC",
+            "May 4, 2029 10:00 UTC",
+            "June 2024",
+        ],
+        "Launch site": ["Cape Canaveral, SLC-40"] * 3,
+        "Orbit": ["LEO"] * 3,
+        "Payload mass": ["6,000 kg (13,000 lb)"] * 3,
+        "Version, booster[h]": ["F9 B5 B1060-15"] * 3,
+        "Booster landing": ["Success (JRTI)", "Unsuccessful landing", "Success"],
+    })
+
+    cleaned = clean_raw_wikipedia_dataset(raw, as_of_date="2024-12-31")
+
+    assert cleaned["Date"].tolist() == ["2024-12-12"]
+    assert cleaned["Year"].tolist() == [2024]
+    assert cleaned["Era"].tolist() == ["Modern Operational"]
+
+
+def test_recovery_outcome_does_not_treat_unsuccessful_as_success():
+    assert parse_recovery_outcome("Unsuccessful landing") == (0, "Failure")
+    assert parse_recovery_outcome("Failure") == (0, "Failure")
+    assert parse_recovery_outcome("No attempt") == (0, "No Attempt")
+    assert parse_recovery_outcome("Success (JRTI)") == (1, "Success (ASDS)")
+
+
+
+def test_processed_cache_invalidates_future_dates_and_legacy_synthetic_era():
+    future = pd.DataFrame({
+        "Date": ["2029-06-15"],
+        "Era": ["Modern Operational (2023-2024)"],
+    })
+    legacy_synthetic = pd.DataFrame({
+        "Date": ["2024-06-15"],
+        "Era": ["Modern Operational (2023-2024)"],
+    })
+    current = pd.DataFrame({
+        "Date": ["2024-12-12"],
+        "Era": ["Modern Operational"],
+    })
+    incomplete = pd.DataFrame({
+        "Date": [None],
+        "Era": ["Modern Operational"],
+    })
+
+    assert not _cache_has_valid_historical_dates(future)
+    assert not _cache_has_valid_historical_dates(legacy_synthetic)
+    assert not _cache_has_valid_historical_dates(incomplete)
+    assert _cache_has_valid_historical_dates(current)
