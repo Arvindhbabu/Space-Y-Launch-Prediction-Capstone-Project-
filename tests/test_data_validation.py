@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 
 from spacey.data.validation import validate_dataset, DataQualityReport
+from spacey.data.loader import _cache_has_valid_historical_dates
 from spacey.data.preprocessing import (
     extract_payload_kg,
     clean_text_field,
@@ -133,3 +134,28 @@ def test_recovery_outcome_does_not_treat_unsuccessful_as_success():
     assert parse_recovery_outcome("Failure") == (0, "Failure")
     assert parse_recovery_outcome("No attempt") == (0, "No Attempt")
     assert parse_recovery_outcome("Success (JRTI)") == (1, "Success (ASDS)")
+
+
+
+def test_processed_cache_invalidates_future_dates_and_legacy_synthetic_era():
+    future = pd.DataFrame({
+        "Date": ["2029-06-15"],
+        "Era": ["Modern Operational (2023-2024)"],
+    })
+    legacy_synthetic = pd.DataFrame({
+        "Date": ["2024-06-15"],
+        "Era": ["Modern Operational (2023-2024)"],
+    })
+    current = pd.DataFrame({
+        "Date": ["2024-12-12"],
+        "Era": ["Modern Operational"],
+    })
+    incomplete = pd.DataFrame({
+        "Date": [None],
+        "Era": ["Modern Operational"],
+    })
+
+    assert not _cache_has_valid_historical_dates(future)
+    assert not _cache_has_valid_historical_dates(legacy_synthetic)
+    assert not _cache_has_valid_historical_dates(incomplete)
+    assert _cache_has_valid_historical_dates(current)

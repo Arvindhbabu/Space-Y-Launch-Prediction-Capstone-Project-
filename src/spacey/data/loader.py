@@ -21,9 +21,31 @@ from spacey.data.preprocessing import (
     build_unified_flight_archive,
 )
 from spacey.data.validation import validate_dataset, DataQualityReport
+from spacey.analytics.sql_engine import SpaceYAnalyticsDB
 from spacey.logging_config import setup_logger
 
 logger = setup_logger("spacey.loader")
+
+def _cache_has_valid_historical_dates(df: pd.DataFrame) -> bool:
+    """Return False for stale generated caches with invalid or future launch dates."""
+    if df.empty or "Date" not in df.columns:
+        return False
+
+    dates = pd.to_datetime(df["Date"], errors="coerce")
+    if dates.isna().any():
+        return False
+
+    cutoff = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
+    if (dates > cutoff).any():
+        return False
+
+    # The previous cleaner invented June 15 for year-only rows. The legacy era
+    # label identifies those generated snapshots, even if their dates look old.
+    if "Era" in df.columns and df["Era"].astype(str).eq("Modern Operational (2023-2024)").any():
+        return False
+
+    return True
+
 
 
 def load_and_prepare_benchmark_data(force_refresh: bool = False) -> Tuple[pd.DataFrame, DataQualityReport]:
@@ -59,8 +81,12 @@ def load_and_prepare_operational_data(force_refresh: bool = False) -> Tuple[pd.D
     if not force_refresh and OPERATIONAL_PROCESSED_CSV.exists():
         logger.info("Loading processed operational dataset from disk cache: %s", OPERATIONAL_PROCESSED_CSV)
         df = pd.read_csv(OPERATIONAL_PROCESSED_CSV)
-        report = validate_dataset(df, dataset_name="Operational Launch Dataset")
-        return df, report
+        if _cache_has_valid_historical_dates(df):
+            report = validate_dataset(df, dataset_name="Operational Launch Dataset")
+            return df, report
+        logger.warning(
+            "Processed operational cache contains legacy synthetic, incomplete, or future dates; rebuilding it."
+        )
 
     raw_df, meta = load_local_raw_launches(RAW_SPACEX_CSV)
     if raw_df is None:
@@ -82,8 +108,14 @@ def load_and_prepare_unified_data(force_refresh: bool = False) -> Tuple[pd.DataF
     if not force_refresh and UNIFIED_LAUNCHES_CSV.exists():
         logger.info("Loading processed unified dataset from disk cache: %s", UNIFIED_LAUNCHES_CSV)
         df = pd.read_csv(UNIFIED_LAUNCHES_CSV)
-        report = validate_dataset(df, dataset_name="Unified Historical Launch Archive")
-        return df, report
+        if _cache_has_valid_historical_dates(df):
+            report = validate_dataset(df, dataset_name="Unified Historical Launch Archive")
+            # Keep SQLite views synchronized with the archive consumed by the UI.
+            SpaceYAnalyticsDB().initialize_database(df)
+            return df, report
+        logger.warning(
+            "Unified launch cache contains legacy synthetic, incomplete, or future dates; rebuilding it."
+        )
 
     bench_df, _ = load_and_prepare_benchmark_data(force_refresh=force_refresh)
     ops_df, _ = load_and_prepare_operational_data(force_refresh=force_refresh)
@@ -94,4 +126,6 @@ def load_and_prepare_unified_data(force_refresh: bool = False) -> Tuple[pd.DataF
     UNIFIED_LAUNCHES_CSV.parent.mkdir(parents=True, exist_ok=True)
     unified_df.to_csv(UNIFIED_LAUNCHES_CSV, index=False)
     logger.info("Saved unified flight archive to %s", UNIFIED_LAUNCHES_CSV)
+    # Keep the dashboard's SQL-backed views in sync after rebuilding the archive.
+    SpaceYAnalyticsDB().initialize_database(unified_df)
     return unified_df, report
