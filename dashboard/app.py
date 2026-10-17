@@ -152,4 +152,4 @@ fig.update_layout(
     yaxis=dict(gridcolor="#E2E8F0"),
     margin=dict(l=40, r=40, t=20, b=40),
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")

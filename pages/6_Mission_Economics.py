@@ -124,7 +124,7 @@ with col_sens:
     curve_df = compute_probability_sensitivity_curve(params=econ_params)
     st.plotly_chart(
         plot_economics_sensitivity(curve_df, breakeven_p=res.break_even_probability),
-        use_container_width=True,
+        width="stretch",
     )
 
 with col_matrix:
@@ -171,7 +171,7 @@ with col_matrix:
             f"{(res.expendable_margin_m/rev)*100:.1f}%",
         ],
     })
-    st.dataframe(matrix_df, use_container_width=True, hide_index=True)
+    st.dataframe(matrix_df, width="stretch", hide_index=True)
 
 st.markdown("---")
 render_section_header(
