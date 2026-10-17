@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use SpaceY Intelligence in research or teaching, please cite this software."
+type: software
+title: "SpaceY Intelligence: Launch Analytics, Booster-Recovery Prediction, and Mission Economics"
+authors:
+  - given-names: "Arvindh Babu"
+    family-names: "V"
+    affiliation: "SRM TRP Engineering College"
+version: 1.0.1
+date-released: "2026-10-17"
+url: "https://github.com/Arvindhbabu/SpaceY-Intelligence"
+abstract: >-
+  An educational launch analytics project that combines a Streamlit dashboard,
+  historical launch exploration, a scikit-learn booster-recovery classifier,
+  a FastAPI service, and an illustrative mission-economics simulator.
+keywords:
+  - launch analytics
+  - Falcon 9
+  - machine learning
+  - data science
+  - Streamlit
+  - FastAPI
+  - mission economics
